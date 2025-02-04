@@ -1,0 +1,1 @@
+AdFriend transforms web ads into positive contents
