@@ -1,6 +1,5 @@
 {
   "name": "adfriend",
-  
   "version": "5.0.4",
   "description": "Transform web ads to positive contents",
   "license": "MIT",
@@ -14,6 +13,7 @@
     "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'"
   },
   "dependencies": {
+    "lucide-react": "^0.474.0",
     "postcss-loader": "^8.1.1",
     "postcss-preset-env": "^10.1.3",
     "react": "^18.2.0",
