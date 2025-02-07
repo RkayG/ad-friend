@@ -1,11 +1,11 @@
 {
   "name": "adfriend",
-  "version": "5.0.4",
+  "version": "1.0.0",
   "description": "Transform web ads to positive contents",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rkayg/ad-friend.git"
+    "url": "https://github.com/rkayg/ad-friend"
   },
   "scripts": {
     "build": "node utils/build.js",
@@ -13,6 +13,7 @@
     "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'"
   },
   "dependencies": {
+    "dotenv": "^16.4.7",
     "lucide-react": "^0.474.0",
     "postcss-loader": "^8.1.1",
     "postcss-preset-env": "^10.1.3",
