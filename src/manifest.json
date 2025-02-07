@@ -1,17 +1,19 @@
 {
   "manifest_version": 3,
   "name": "AdFriend",
-  "displayName": "AdFriend",
   "description": "Transform web ads into positive contents",
   "options_page": "options.html",
   "background": {
     "service_worker": "background.bundle.js"
   },
   "permissions": [
-    "storage"
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess",
+    "storage",
+    "activeTab"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "*://*.themoviedb.org/*"
   ],
   "action": {
     "default_popup": "popup.html",
