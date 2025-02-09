@@ -75,23 +75,41 @@ async function checkBlockedRequests() {
 // Set up periodic checking
 setInterval(checkBlockedRequests, 12000); // Check every 12 seconds
 
+// fetch movie reviews by specific movie ID 
+async function fetchMovieReviews(movieId) {
+    try {
+        const response = await fetch(
+            `${TMDB_BASE_URL}/movie/${movieId}/reviews?api_key=${TMDB_API_KEY}`
+        );
+        const data = await response.json();
+        return data.results.slice(0, 2); // Get the first review
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+        return null;
+    }
+}
+
+// fetch movie trailer for a specific movie ID
+async function fetchMovieTrailer(movieId) {
+    try {
+        const response = await fetch(
+            `${TMDB_BASE_URL}/movie/${movieId}/videos?api_key=${TMDB_API_KEY}`
+        );
+        const data = await response.json();
+        return data.results.find(video => video.type === 'Trailer') || null;
+    } catch (error) {
+        console.error('Error fetching trailer:', error);
+        return null;
+    }
+}
+
 // Fetch movie recommendations from TMDB for a specific genre
 async function fetchNewRecommendations(genre) {
     try {
-        // Map our genre categories to TMDB genre IDs
         const genreIds = {
-            action: 28,
-            comedy: 35,
-            drama: 18,
-            scifi: 878,
-            horror: 27,
-            romance: 10749,
-            thriller: 53,
-            fantasy: 14,
-            mystery: 9648,
-            animation: 16,
-            adventure: 12,
-            crime: 80
+            action: 28, comedy: 35, drama: 18, scifi: 878, horror: 27,
+            romance: 10749, thriller: 53, fantasy: 14, mystery: 9648,
+            animation: 16, adventure: 12, crime: 80
         };
 
         const genreId = genreIds[genre];
@@ -100,19 +118,36 @@ async function fetchNewRecommendations(genre) {
         );
         const data = await response.json();
 
-        // Transform the data to match UI requirements
-        cachedRecommendations[genre] = data.results.map(movie => ({
-            title: movie.title,
-            year: new Date(movie.release_date).getFullYear(),
-            rating: movie.adult ? 'R' : 'PG-13', // Simplified rating logic
-            runtime: '120 min', // TMDB doesn't provide runtime in discover endpoint
-            imageUrl: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-            description: movie.overview
+        // Process movies and filter out those without reviews
+        const moviesWithReviews = await Promise.all(data.results.map(async movie => {
+            const reviews = await fetchMovieReviews(movie.id);
+            if (!reviews || reviews.length === 0) return null; // Exclude movies without reviews
+
+            const trailer = await fetchMovieTrailer(movie.id);
+
+            return {
+                id: movie.id,
+                title: movie.title,
+                year: new Date(movie.release_date).getFullYear(),
+                rating: movie.vote_average,
+                imageUrl: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+                voteAverage: movie.vote_average,
+                voteCount: movie.vote_count,
+                description: movie.overview,
+                reviews,
+                criticsScore: Math.round(movie.vote_average * 10),
+                audienceScore: Math.round((movie.popularity / 1000) * 100),
+                trailerKey: trailer ? trailer.key : null
+            };
         }));
+
+        // Filter out null values (movies without reviews)
+        cachedRecommendations[genre] = moviesWithReviews.filter(movie => movie !== null);
     } catch (error) {
         console.error('Error fetching recommendations:', error);
     }
 }
+
 
 // Handle messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -127,6 +162,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         // If category is empty, fetch new recommendations
         if (cachedRecommendations[category].length === 0) {
+            console.log('no cached recommendation')
             fetchNewRecommendations(category).then(() => {
                 const recommendation = getRandomRecommendation(category);
                 sendResponse({ recommendation, count: blockedAdsCount }); // Send count as well
