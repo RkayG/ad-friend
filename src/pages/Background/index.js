@@ -1,8 +1,7 @@
+//Background/index.js
 
-console.log('Service worker loaded');
-
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
-const TMDB_BASE_URL = process.env.TMDB_BASE_URL;
+const TMDB_API_KEY = '46a46785be10d4120686d84440159e11'
+const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
 
 // Track blocked ads count
 let blockedAdsCount = 0;
@@ -49,22 +48,33 @@ chrome.runtime.onInstalled.addListener(() => {
         fetchNewRecommendations(genre);
     });
 });
-/* 
-// Listen for blocked requests
-chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(async (e) => {
-    blockedAdsCount++;
 
-    // Notify content script about blocked ad
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs[0]) {
-            chrome.tabs.sendMessage(tabs[0].id, {
-                type: 'AD_BLOCKED',
-                count: blockedAdsCount
+// Listen for blocked requests using declarativeNetRequest.getMatchedRules instead
+async function checkBlockedRequests() {
+    try {
+        const rules = await chrome.declarativeNetRequest.getMatchedRules({});
+        if (rules && rules.length > 0) {
+            blockedAdsCount += rules.length;
+            console.log(`Ads blocked: ${blockedAdsCount}`);
+
+            // Notify content script about blocked ads
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                if (tabs[0]) {
+                    chrome.tabs.sendMessage(tabs[0].id, {
+                        type: 'AD_BLOCKED',
+                        count: blockedAdsCount
+                    });
+                }
             });
         }
-    });
-});
- */
+    } catch (error) {
+        console.error('Error checking blocked requests:', error);
+    }
+}
+
+// Set up periodic checking
+setInterval(checkBlockedRequests, 12000); // Check every 12 seconds
+
 // Fetch movie recommendations from TMDB for a specific genre
 async function fetchNewRecommendations(genre) {
     try {
