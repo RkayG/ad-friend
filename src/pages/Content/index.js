@@ -178,17 +178,26 @@ function createMoviePoster(movie, originalDimensions) {
       }
   
       .reviews-section {
-        flex-grow: 1;
-        overflow-y: auto;
-        margin: 1rem 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        justify-content: space-between;
       }
-  
+
       .review-card {
-        background: rgba(255,255,255,0.05);
+        flex: 1 1 calc(50% - 16px); /* Two reviews per row */
+        background: rgba(255, 255, 255, 0.05);
         border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
+        padding: 12px;
+        min-width: 250px;
       }
+
+      @media (max-width: 600px) {
+        .review-card {
+          flex: 1 1 100%; /* Full width for smaller screens */
+        }
+      }
+
   
       .reviewer-info {
         display: flex;
@@ -223,11 +232,22 @@ function createMoviePoster(movie, originalDimensions) {
   
       .quick-actions {
         display: flex;
-        gap: 8px;
-        margin-top: auto;
+        position: absolute;
+        width: 100%;
         justify-content: center;
+        bottom: 0;
+        left: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,0.9));
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+        padding: 8px;
+        border-radius: 8px;
+        gap: 8px;
       }
-  
+
+      .movie-poster-container:hover .quick-actions {
+        transform: translateY(0);
+      }
       .action-btn {
         width: 40px;
         height: 40px;
