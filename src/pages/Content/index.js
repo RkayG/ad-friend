@@ -1,5 +1,5 @@
 // Content/index.js
-
+import './content.styles.css';
 // Common ad container selectors
 const AD_SELECTORS = [
   '[id*="ad-"]',
@@ -52,6 +52,40 @@ function createMovieModal(movie) {
   return modal;
 }
 
+// Add this function to create the review modal
+function createReviewModal(review) {
+  const modal = document.createElement('div');
+  modal.className = 'review-modal';
+  modal.innerHTML = `
+    <div class="review-modal-content">
+      <span class="close-modal">&times;</span>
+      <div class="review-modal-header">
+        <div class="reviewer-info">
+          <h3 class="reviewer-name">${review.author}</h3>
+          ${review.author_details?.rating ? `
+            <div class="review-rating">
+              <span class="rating-star">★</span>
+              <span class="rating-value">${review.author_details.rating}/10</span>
+            </div>
+          ` : ''}
+        </div>
+        <div class="review-date">
+          ${new Date(review.created_at).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })}
+        </div>
+      </div>
+      <div class="review-modal-body">
+        <p class="full-review">${review.content}</p>
+      </div>
+    </div>
+  `;
+
+  return modal;
+}
+
 // Create movie poster element
 function createMoviePoster(movie, originalDimensions) {
   const container = document.createElement('div');
@@ -88,10 +122,13 @@ function createMoviePoster(movie, originalDimensions) {
                 </div>
               </div>
               <div class="review-content">
-                "${review.content.length > 150 ?
-      review.content.substring(0, 150) + '...' :
+                "${review.content.length > 600 ?
+      review.content.substring(0, 600) + '...' :
       review.content}"
               </div>
+               ${review.content.length > 600 ?
+      `<button class="read-more-btn">Read More</button>` :
+      ''}
             </div>
           `).join('') : `
             <div class="no-reviews">
@@ -143,17 +180,20 @@ function createMoviePoster(movie, originalDimensions) {
         color: white;
         display: flex;
         flex-direction: column;
+        gap: 1rem;
       }
+
   
       .movie-header {
         margin-bottom: 1rem;
       }
   
       .movie-title {
+        font-weight: 600;
         margin: 0;
-        font-size: min(1.4rem, 14%);
-        font-weight: bold;
+        font-size: 1.4rem;
         color: #fff;
+        letter-spacing: -0.02em;
       }
   
       .movie-rating {
@@ -165,71 +205,92 @@ function createMoviePoster(movie, originalDimensions) {
   
       .rating-star {
         color: #ffd700;
+        font-size: 1.2rem;
       }
   
       .rating-value {
-        font-weight: bold;
-        font-size: min(1.1rem, 12%);
+        font-weight: 600;
+        font-size: 1.1rem
       }
   
       .rating-count {
         opacity: 0.7;
-        font-size: min(0.9rem, 10%);
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.7);
       }
-  
       .reviews-section {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        justify-content: space-between;
-      }
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
 
-      .review-card {
-        flex: 1 1 calc(50% - 16px); /* Two reviews per row */
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-        padding: 12px;
-        min-width: 250px;
-      }
+    .reviews-section::-webkit-scrollbar {
+      width: 4px;
+    }
 
-      @media (max-width: 600px) {
-        .review-card {
-          flex: 1 1 100%; /* Full width for smaller screens */
-        }
-      }
+    .reviews-section::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+    }
 
-  
-      .reviewer-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.8rem;
-      }
-  
-      .reviewer-name {
-        font-weight: bold;
-        font-size: min(0.9rem, 10%);
-        color: #ffd700;
-      }
-  
-      .review-rating {
-        font-size: min(0.8rem, 9%);
-      }
-  
-      .review-content {
-        font-size: min(0.9rem, 10%);
-        line-height: 1.4;
-        font-style: italic;
-        color: rgba(255,255,255,0.9);
-      }
-  
-      .no-reviews {
-        text-align: center;
-        padding: 2rem;
-        color: rgba(255,255,255,0.6);
-        font-style: italic;
-      }
-  
+    .reviews-section::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 4px;
+    }
+
+    .review-card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 1rem;
+      transition: transform 0.2s ease;
+    }
+
+    .review-card:hover {
+      transform: translateX(4px);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .reviewer-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+    }
+
+    .reviewer-name {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #ffd700;
+    }
+
+    .review-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .review-content {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.85);
+      font-style: italic;
+    }
+
+    .no-reviews {
+      text-align: center;
+      padding: 2rem;
+      color: rgba(255,255,255,0.7);
+      font-size: 1rem;
+      font-style: italic;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+    }
+      
       .quick-actions {
         display: flex;
         position: absolute;
@@ -415,6 +476,38 @@ function createMoviePoster(movie, originalDimensions) {
   infoBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     showMovieModal(movie);
+  });
+
+  container.querySelectorAll('.read-more-btn').forEach((btn, index) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const review = reviews[index];
+      const reviewModal = createReviewModal(review);
+      document.body.appendChild(reviewModal);
+
+      // Animation timing
+      setTimeout(() => {
+        reviewModal.classList.add('active');
+      }, 10);
+
+      // Close modal handlers
+      const closeBtn = reviewModal.querySelector('.close-modal');
+      closeBtn.addEventListener('click', () => {
+        reviewModal.classList.remove('active');
+        setTimeout(() => {
+          reviewModal.remove();
+        }, 300);
+      });
+
+      reviewModal.addEventListener('click', (e) => {
+        if (e.target === reviewModal) {
+          reviewModal.classList.remove('active');
+          setTimeout(() => {
+            reviewModal.remove();
+          }, 300);
+        }
+      });
+    });
   });
 
   return container;
