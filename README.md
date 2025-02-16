@@ -1,6 +1,6 @@
 # AdFriend Extension 🎬
 
-![AdFriend Banner](/images/adfriend-demo.png)
+![AdFriend Banner](/public/images/adfriend-demo.png)
 
 AdFriend transforms intrusive web advertisements into personalized movie recommendations. Rather than being distracted by ads, discover your next favorite movie while browsing!
 
@@ -16,7 +16,7 @@ AdFriend transforms intrusive web advertisements into personalized movie recomme
   - Trailer preview
   - Watchlist management
 
-![Ad Replacement Demo](/images/ad-replace-demo.png)
+![Ad Replacement Demo](/public/images/ad-replace-demo.png)
 
 ### Interactive Movie Cards
 - **Quick Actions**:
@@ -28,7 +28,7 @@ AdFriend transforms intrusive web advertisements into personalized movie recomme
   - Rating distribution
   - Critic scores
 
-![Movie Card Features](/images/movie-card-features.png)
+![Movie Card Features](/public/images/movie-card-features.png)
 
 ### Extension Popup
 The popup interface provides quick access to:
@@ -37,7 +37,7 @@ The popup interface provides quick access to:
 - **Review Browser**: Read detailed movie reviews
 - **Trailer Player**: Watch trailers directly in the popup
 
-![Popup Interface](/images/popup.png)
+![Popup Interface](/public/images/popup.png)
 
 ## 🚀 Installation
 
@@ -90,13 +90,13 @@ The popup interface provides quick access to:
 ## 📱 Screenshots
 
 ### Ad Replacement
-![Ad Replacement](/images/movie-card-trailer.png)
+![Ad Replacement](/public/images/movie-card-trailer.png)
 
 ### Movie Details
-![Movie Trailer](/images/trailer.png)
+![Movie Trailer](/public/images/trailer.png)
 
 ### Watchlist Management
-![Watchlist](/images/watchlist.png)
+![Watchlist](/public/images/watchlist.png)
 
 
 ## 📝 License
