@@ -82,7 +82,7 @@ async function fetchMovieReviews(movieId) {
             `${TMDB_BASE_URL}/movie/${movieId}/reviews?api_key=${TMDB_API_KEY}`
         );
         const data = await response.json();
-        return data.results.slice(0, 2); // Get the first review
+        return data.results.slice(0, 10); // Get the first ten reviews
     } catch (error) {
         console.error('Error fetching reviews:', error);
         return null;
@@ -135,6 +135,7 @@ async function fetchNewRecommendations(genre) {
                 voteCount: movie.vote_count,
                 description: movie.overview,
                 reviews,
+                runtime: movie.runtime,
                 criticsScore: Math.round(movie.vote_average * 10),
                 audienceScore: Math.round((movie.popularity / 1000) * 100),
                 trailerKey: trailer ? trailer.key : null
@@ -172,6 +173,79 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         const recommendation = getRandomRecommendation(category);
         sendResponse({ recommendation, count: blockedAdsCount }); // Send count here too
+    }
+});
+
+// Listen for add to watchlist or remove from watchlist request
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    // Handle adding to watchlist
+    if (message.type === 'ADD_TO_WATCHLIST') {
+        const movie = message.movie;
+
+        // Retrieve the existing watchlist from storage
+        chrome.storage.local.get(['watchlist'], (result) => {
+            let watchlist = result.watchlist || [];
+
+            // Check if the watchlist is an object and convert it to an array
+            if (typeof watchlist === 'object' && !Array.isArray(watchlist)) {
+                watchlist = Object.values(watchlist);
+            }
+
+            // Check if movie already exists in watchlist
+            if (!watchlist.some(item => item.id === movie.id)) {
+                // Add the new movie to the watchlist
+                const updatedWatchlist = [...watchlist, movie];
+                console.log('Watchlist after adding:', updatedWatchlist);
+
+                // Save the updated watchlist back to storage
+                chrome.storage.local.set({ watchlist: updatedWatchlist }, () => {
+                    sendResponse({ success: true });
+                    console.log('Successfully added to watchlist');
+                });
+            } else {
+                sendResponse({ success: false, message: 'Movie already in watchlist' });
+                console.log('Movie already exists in watchlist');
+            }
+        });
+
+        return true; // Indicates that the response will be sent asynchronously
+    }
+
+    // Handle removing from watchlist
+    if (message.type === 'REMOVE_FROM_WATCHLIST') {
+        const movieId = message.movieId;
+
+        // Retrieve the existing watchlist from storage
+        chrome.storage.local.get(['watchlist'], (result) => {
+            let watchlist = result.watchlist || [];
+
+            // Check if the watchlist is an object and convert it to an array
+            if (typeof watchlist === 'object' && !Array.isArray(watchlist)) {
+                watchlist = Object.values(watchlist);
+            }
+
+            console.log('Watchlist before removal:', watchlist);
+
+            // Remove the movie from the watchlist
+            const updatedWatchlist = watchlist.filter(movie => movie.id !== movieId);
+
+            if (watchlist.length === updatedWatchlist.length) {
+                // Movie wasn't found in watchlist
+                sendResponse({ success: false, message: 'Movie not found in watchlist' });
+                console.log('Movie not found in watchlist');
+                return;
+            }
+
+            console.log('Watchlist after removal:', updatedWatchlist);
+
+            // Save the updated watchlist back to storage
+            chrome.storage.local.set({ watchlist: updatedWatchlist }, () => {
+                sendResponse({ success: true });
+                console.log('Successfully removed from watchlist');
+            });
+        });
+
+        return true; // Indicates that the response will be sent asynchronously
     }
 });
 
