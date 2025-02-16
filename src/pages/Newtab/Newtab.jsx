@@ -51,10 +51,10 @@ const Newtab = () => {
       {/* Navigation */}
       <nav className="absolute top-0 w-full p-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-white">MovieMate</h1>
-          <button className="px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition">
+          <h1 className="text-2xl font-bold text-white">AdFriend</h1>
+          {/* <button className="px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition">
             Get Started
-          </button>
+          </button> */}
         </div>
       </nav>
 
@@ -79,7 +79,7 @@ const Newtab = () => {
             Smarter browsing, better recommendations.
           </p>
 
-          <div className="flex flex-col md:flex-row gap-6 justify-center mb-16">
+          {/* <div className="flex flex-col md:flex-row gap-6 justify-center mb-16">
             <button className="group relative flex items-center justify-center gap-2 px-8 py-4 bg-purple-600 text-white rounded-full text-lg font-semibold hover:bg-purple-700 transition-all transform hover:scale-105">
               <Shield className="w-5 h-5" />
               Install Now
@@ -90,7 +90,7 @@ const Newtab = () => {
             <button className="flex items-center justify-center gap-2 px-8 py-4 bg-slate-800 text-white rounded-full text-lg font-semibold hover:bg-slate-700 transition-all transform hover:scale-105">
               See How It Works
             </button>
-          </div>
+          </div> */}
 
           {/* Features */}
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">

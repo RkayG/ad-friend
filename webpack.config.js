@@ -134,6 +134,7 @@ var options = {
     extensions: fileExtensions
       .map((extension) => '.' + extension)
       .concat(['.js', '.jsx', '.ts', '.tsx', '.css']),
+
   },
   plugins: [
     isDevelopment && new ReactRefreshWebpackPlugin(),
