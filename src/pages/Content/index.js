@@ -17,40 +17,6 @@ const AD_SELECTORS = [
 const replacedElements = new Set();
 
 // Create modal element
-function createMovieModal(movie) {
-  const modal = document.createElement('div');
-  modal.className = 'movie-mate-modal';
-  modal.innerHTML = `
-    <div class="modal-content">
-      <span class="close-modal">&times;</span>
-      <div class="modal-grid">
-        <div class="modal-poster">
-          <img src="${movie.imageUrl}" alt="${movie.title}">
-        </div>
-        <div class="modal-info">
-          <h2>${movie.title}</h2>
-          <div class="modal-meta">
-            <span class="year">${movie.year}</span>
-            <span class="rating">${movie.rating}</span>
-            <span class="duration">${movie.duration || '120 min'}</span>
-          </div>
-          <p class="description">${movie.description || 'No description available.'}</p>
-          <div class="genre-tags">
-            ${(movie.genres || ['Action', 'Drama']).map(genre =>
-    `<span class="genre-tag">${genre}</span>`
-  ).join('')}
-          </div>
-          <div class="action-buttons">
-            <button class="watch-trailer">Watch Trailer</button>
-            <button class="add-watchlist">Add to Watchlist</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  return modal;
-}
 
 // Add this function to create the review modal
 function createReviewModal(review) {
@@ -85,6 +51,64 @@ function createReviewModal(review) {
 
   return modal;
 }
+// trailer modal
+function createMovieModal(movie) {
+  const modal = document.createElement('div');
+  modal.className = 'movie-mate-modal';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <div class="modal-grid">
+        <div class="modal-poster">
+          <img src="${movie.imageUrl}" alt="${movie.title}">
+        </div>
+        <div class="modal-info">
+          <h2>${movie.title}</h2>
+          <div class="modal-meta">
+            <span class="year">${movie.year}</span>
+            <span class="rating">${movie.rating}</span>
+            <span class="duration">${movie.runtime || '120 min'}</span>
+          </div>
+          <p class="description">${movie.description || 'No description available.'}</p>
+          <div class="genre-tags">
+            ${(movie.genres || ['Action', 'Drama']).map(genre =>
+    `<span class="genre-tag">${genre}</span>`
+  ).join('')}
+          </div>
+          <div class="action-buttons">
+            ${movie.trailerKey ? `<button class="watch-trailer">Watch Trailer</button>` : ''}
+            <button class="add-watchlist">
+              <span class="add-text">Add to Watchlist</span>
+              <span class="added-text" style="display: none;">Added to Watchlist</span>
+            </button>
+          </div>
+          <div class="trailer-container" style="display: none;">
+            <iframe 
+              id="trailer-player"
+              width="100%" height="315"
+              src="https://www.youtube.com/embed/${movie.trailerKey}?autoplay=1&rel=0"
+              frameborder="0"
+              allow="autoplay; encrypted-media"
+              allowfullscreen
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Add event listener for trailer button
+  modal.querySelector('.watch-trailer')?.addEventListener('click', () => {
+    modal.querySelector('.trailer-container').style.display = 'block';
+  });
+
+  modal.querySelector('.close-modal').addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+  return modal;
+}
+
 
 // Create movie poster element
 function createMoviePoster(movie, originalDimensions) {
@@ -122,17 +146,17 @@ function createMoviePoster(movie, originalDimensions) {
                 </div>
               </div>
               <div class="review-content">
-                "${review.content.length > 600 ?
-      review.content.substring(0, 600) + '...' :
+                "${review.content.length > 300 ?
+      review.content.substring(0, 300) + '...' :
       review.content}"
               </div>
-               ${review.content.length > 600 ?
-      `<button class="read-more-btn">Read More</button>` :
+               ${review.content.length > 300 ?
+      `<button class="read-more-btn">Read Full Review</button>` :
       ''}
             </div>
           `).join('') : `
             <div class="no-reviews">
-              No reviews available yet. Be the first to review!
+              No reviews available yet.
             </div>
           `}
         </div>
@@ -142,7 +166,7 @@ function createMoviePoster(movie, originalDimensions) {
             <button class="action-btn play-btn" title="Watch Trailer">▶</button>
           ` : ''}
           <button class="action-btn info-btn" title="More Info">i</button>
-          <button class="action-btn like-btn" title="Add to Favorites">♥</button>
+          <button class="action-btn like-btn addWatchlistButton" title="Add to Watchlist">♥</button>
         </div>
       </div>
     </div>
@@ -349,6 +373,7 @@ function createMoviePoster(movie, originalDimensions) {
       z-index: 9999;
       opacity: 0;
       transition: opacity 0.3s ease;
+      overflow-y: auto;
     }
 
     .movie-mate-modal.active {
@@ -452,24 +477,24 @@ function createMoviePoster(movie, originalDimensions) {
   const likeBtn = container.querySelector('.like-btn');
   const playBtn = container.querySelector('.play-btn');
   const infoBtn = container.querySelector('.info-btn');
+  const addWatchlistButton = container.querySelector('.addWatchlistButton');
 
-  // Like button toggle
+  // Check initial watchlist state
+  checkIfInWatchlist(movie.id).then(isInWatchlist => {
+    if (isInWatchlist) {
+      likeBtn.classList.add('active');
+    }
+  });
+
   likeBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    likeBtn.classList.toggle('active');
-    chrome.runtime.sendMessage({
-      type: 'TOGGLE_FAVORITE',
-      movieId: movie.id
-    });
+    toggleWatchlist(movie, likeBtn);
   });
 
   // Play button (trailer)
   playBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    chrome.runtime.sendMessage({
-      type: 'PLAY_TRAILER',
-      movieId: movie.id
-    });
+    showMovieModal(movie);
   });
 
   // Info button (modal)
@@ -513,6 +538,56 @@ function createMoviePoster(movie, originalDimensions) {
   return container;
 }
 
+function showFeedbackToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'feedback-toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  // Remove toast after animation
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
+
+async function checkIfInWatchlist(movieId) {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(['watchlist'], (result) => {
+      const watchlist = result.watchlist || [];
+      resolve(watchlist.some(item => item.id === movieId));
+    });
+  });
+}
+
+async function toggleWatchlist(movie, likeBtn) {
+  const isInWatchlist = await checkIfInWatchlist(movie.id);
+
+  if (isInWatchlist) {
+    // Remove from watchlist
+    chrome.runtime.sendMessage({
+      type: 'REMOVE_FROM_WATCHLIST',
+      movieId: movie.id
+    }, (response) => {
+      if (response?.success) {
+        likeBtn.classList.remove('active');
+        showFeedbackToast(`${movie.title} removed from watchlist`);
+      }
+    });
+  } else {
+    // Add to watchlist
+    chrome.runtime.sendMessage({
+      type: 'ADD_TO_WATCHLIST',
+      movie: movie
+    }, (response) => {
+      if (response?.success) {
+        likeBtn.classList.add('active');
+        showFeedbackToast(`${movie.title} added to watchlist`);
+      }
+    });
+  }
+}
+
+
 // Show movie modal
 function showMovieModal(movie) {
   const modal = createMovieModal(movie);
@@ -544,21 +619,34 @@ function showMovieModal(movie) {
   // Button handlers
   const watchTrailerBtn = modal.querySelector('.watch-trailer');
   const addWatchlistBtn = modal.querySelector('.add-watchlist');
+  const addText = modal.querySelector('.add-text');
+  const addedText = modal.querySelector('.added-text');
 
-  watchTrailerBtn.addEventListener('click', () => {
-    chrome.runtime.sendMessage({
-      type: 'PLAY_TRAILER',
-      movieId: movie.id
-    });
+  checkIfInWatchlist(movie.id).then(isInWatchlist => {
+    if (isInWatchlist) {
+      addText.style.display = 'none';
+      addedText.style.display = 'inline';
+      addWatchlistBtn.disabled = true;
+      addWatchlistBtn.classList.add('in-watchlist');
+    }
   });
 
-  addWatchlistBtn.addEventListener('click', () => {
-    chrome.runtime.sendMessage({
-      type: 'ADD_TO_WATCHLIST',
-      movieId: movie.id
-    });
-    addWatchlistBtn.textContent = 'Added to Watchlist';
-    addWatchlistBtn.disabled = true;
+  addWatchlistBtn.addEventListener('click', async () => {
+    const isInWatchlist = await checkIfInWatchlist(movie.id);
+    if (!isInWatchlist) {
+      chrome.runtime.sendMessage({
+        type: 'ADD_TO_WATCHLIST',
+        movie: movie
+      }, (response) => {
+        if (response?.success) {
+          addText.style.display = 'none';
+          addedText.style.display = 'inline';
+          addWatchlistBtn.disabled = true;
+          addWatchlistBtn.classList.add('in-watchlist');
+          showFeedbackToast(`${movie.title} added to watchlist`);
+        }
+      });
+    }
   });
 }
 
