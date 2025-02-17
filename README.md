@@ -43,7 +43,7 @@ The popup interface provides quick access to:
 
 1. Clone the repository
 2. run `npm install` to install dependencies
-3. run `npm start`. This will generate a build folder in the root directory
+3. run in dev mode with `npm run start`. This will generate a build folder in the root directory
 4. Load extension by:
   i. Go to chrome extensions and toggle developer mode
   ii. Select 'load unpacked' and select the build folder from its location
