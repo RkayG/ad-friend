@@ -39,12 +39,15 @@ The popup interface provides quick access to:
 
 ![Popup Interface](/public/images/popup.png)
 
-## 🚀 Installation
+## 🚀 Installation and Running 
 
-1. Download the extension from the Chrome Web Store
-2. Click "Add to Chrome"
-3. The extension icon will appear in your browser toolbar
-4. Start browsing and discovering movies!
+1. Clone the repository
+2. run `npm install` to install dependencies
+3. run `npm start`. This will generate a build folder in the root directory
+4. Load extension by:
+  i. Go to chrome extensions and toggle developer mode
+  ii. Select 'load unpacked' and select the build folder from its location
+  iii. Visit any ad-prone website to test the extension
 
 ## 🎯 How It Works
 
@@ -106,9 +109,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - TMDb for movie data
-- Movie review contributors
-- Our beta testers
-- Open source community
+- Starter template used for the extension -> https://github.com/lxieyang/chrome-extension-boilerplate-react
 
 ## 💡 Feedback
 
