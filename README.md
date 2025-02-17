@@ -49,9 +49,9 @@ TMDB_API_KEY = "Your-Api-key"
 ```
 5. run in dev mode with `npm run start`. This will generate a build folder in the root directory
 6. Load extension by:
-  i. Go to chrome extensions and toggle developer mode
-  ii. Select 'load unpacked' and select the build folder from its location
-  iii. Visit any ad-prone website to test the extension
+  - i. Go to chrome extensions and toggle developer mode
+  - ii. Select 'load unpacked' and select the build folder from its location
+  - iii. Visit any ad-prone website to test the extension
 
 ## 🎯 How It Works
 
