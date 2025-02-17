@@ -1,6 +1,6 @@
 //Background/index.js
 
-const TMDB_API_KEY = '46a46785be10d4120686d84440159e11'
+const TMDB_API_KEY = ''
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
 
 // Track blocked ads count
