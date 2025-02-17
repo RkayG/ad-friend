@@ -4,6 +4,8 @@
 
 AdFriend transforms intrusive web advertisements into personalized movie recommendations. Rather than being distracted by ads, discover your next favorite movie while browsing!
 
+## Video Demo https://screenrec.com/share/XRNehEHpSc
+
 ## ✨ Features
 
 ### Ad Replacement
