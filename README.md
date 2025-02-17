@@ -43,8 +43,12 @@ The popup interface provides quick access to:
 
 1. Clone the repository
 2. run `npm install` to install dependencies
-3. run in dev mode with `npm run start`. This will generate a build folder in the root directory
-4. Load extension by:
+3. Get TMDB API key and store it in the TMDB_API_KEY variable in the Background/index.js file
+```bash
+TMDB_API_KEY = "Your-Api-key"
+```
+5. run in dev mode with `npm run start`. This will generate a build folder in the root directory
+6. Load extension by:
   i. Go to chrome extensions and toggle developer mode
   ii. Select 'load unpacked' and select the build folder from its location
   iii. Visit any ad-prone website to test the extension
